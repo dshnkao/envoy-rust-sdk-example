@@ -1,0 +1,8 @@
+load("@rules_rust//rust:defs.bzl", "rust_library")
+
+rust_library(
+    name = "example",
+    srcs = ["src/lib.rs"],
+    edition = "2021",
+    deps = ["@crates//:envoy-proxy-dynamic-modules-rust-sdk"],
+)
