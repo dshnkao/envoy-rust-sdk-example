@@ -1,51 +1,59 @@
-# Envoy Dynamic Modules Rust SDK Crate Universe Example
+# Envoy Dynamic Modules Rust SDK Example
 
-This is a minimal Bazel + `rules_rust` Crate Universe example that depends on
-Envoy's dynamic modules Rust SDK using the Git dependency style documented by
-the SDK:
+This is a minimal Cargo + Bazel `rules_rust` Crate Universe example that depends
+on Envoy's dynamic modules Rust SDK as a Git dependency.
 
 ```toml
 [dependencies]
-envoy-proxy-dynamic-modules-rust-sdk = { git = "https://github.com/envoyproxy/envoy", tag = "v1.38.2" }
+envoy-proxy-dynamic-modules-rust-sdk = { git = "https://github.com/dshnkao/envoy", rev = "a45c65d075d26b976c96a302a06fc52e7bc45960" }
 ```
 
-Crate Universe ingests that `Cargo.toml` through `crate.from_cargo`.
-
-The Envoy SDK crate lives under:
+The pinned Envoy commit contains the Rust SDK ABI header packaging fix. The SDK
+crate now exposes the ABI header at:
 
 ```text
-source/extensions/dynamic_modules/sdk/rust
+source/extensions/dynamic_modules/sdk/rust/abi/abi.h
 ```
 
-Its build script currently reads the ABI header via a parent-directory relative
-path:
-
-```text
-../../abi/abi.h
-```
-
-That path works when building inside the full Envoy repository, where the
-canonical header exists at:
+That file is a symlink to Envoy's canonical ABI header:
 
 ```text
 source/extensions/dynamic_modules/abi/abi.h
 ```
 
-However, Crate Universe generates a Bazel external repository rooted at the Rust
-SDK crate directory. In that generated repository, the surrounding Envoy source
-tree is not present, so `../../abi/abi.h` cannot be resolved by the SDK build
-script.
+The SDK build script reads `CARGO_MANIFEST_DIR/abi/abi.h`, so both Cargo and
+Crate Universe can build the Git dependency from the crate directory while still
+using the canonical Envoy ABI header.
 
-## Reproduce
+## Verify with Cargo
+
+```sh
+LIBCLANG_PATH=/lib/x86_64-linux-gnu cargo build
+```
+
+This exercises Cargo's Git dependency checkout directly. If your system already
+has libclang discoverable by `clang-sys`, plain `cargo build` is sufficient.
+
+## Verify with Bazel
 
 ```sh
 bazel build //:example
 ```
 
-Expected result: the Envoy SDK build script fails when `bindgen` tries to read
-`../../abi/abi.h`.
+This exercises `rules_rust` Crate Universe, which ingests `Cargo.toml` through
+`crate.from_cargo` and builds the Envoy SDK as an external Rust crate.
 
-Observed failure:
+## Previous failure
+
+Before the Envoy patch, the SDK build script read the header via:
+
+```text
+../../abi/abi.h
+```
+
+That path works inside the full Envoy source tree, but it fails once Cargo or
+Crate Universe builds the SDK from the Rust crate directory. The failure looked
+like:
 
 ```text
 cargo:rerun-if-changed=../../abi/abi.h
