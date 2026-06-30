@@ -5,7 +5,7 @@ on Envoy's dynamic modules Rust SDK as a Git dependency.
 
 ```toml
 [dependencies]
-envoy-proxy-dynamic-modules-rust-sdk = { git = "https://github.com/dshnkao/envoy", rev = "6cbf660f3917077b0ad8ce6c66042d6e2abea974" }
+envoy-proxy-dynamic-modules-rust-sdk = { git = "https://github.com/dshnkao/envoy", rev = "9eb2c3d6ddf885a088334209ef9a83bb75757eed" }
 ```
 
 The pinned Envoy commit contains the Rust SDK ABI header packaging fix. The SDK

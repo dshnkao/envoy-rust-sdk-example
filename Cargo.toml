@@ -4,4 +4,4 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-envoy-proxy-dynamic-modules-rust-sdk = { git = "https://github.com/dshnkao/envoy", rev = "6cbf660f3917077b0ad8ce6c66042d6e2abea974" }
+envoy-proxy-dynamic-modules-rust-sdk = { git = "https://github.com/dshnkao/envoy", rev = "9eb2c3d6ddf885a088334209ef9a83bb75757eed" }
